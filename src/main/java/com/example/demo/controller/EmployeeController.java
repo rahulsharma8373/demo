@@ -1,14 +1,20 @@
 package com.example.demo.controller;
 
-import com.example.demo.entity.Employee;
+import com.example.demo.dto.EmployeeRequest;
+import com.example.demo.dto.EmployeeResponse;
 import com.example.demo.service.EmployeeService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/employees")
+@RequestMapping("/api/v1/employees")
+@Validated
 public class EmployeeController {
 
     private final EmployeeService employeeService;
@@ -17,43 +23,82 @@ public class EmployeeController {
         this.employeeService = employeeService;
     }
 
-    // CREATE
+    /**
+     * Create a new employee.
+     *
+     * POST /api/v1/employees
+     */
     @PostMapping
-    public Employee createEmployee(@RequestBody Employee employee) {
+    public ResponseEntity<EmployeeResponse> createEmployee(
+            @Valid @RequestBody EmployeeRequest request) {
 
-        return employeeService.createEmployee(employee);
+        EmployeeResponse response =
+                employeeService.createEmployee(request);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
 
-    // GET ALL
+    /**
+     * Get all employees.
+     *
+     * GET /api/v1/employees
+     */
     @GetMapping
-    public List<Employee> getAllEmployees() {
+    public ResponseEntity<List<EmployeeResponse>> getAllEmployees() {
 
-        return employeeService.getAllEmployees();
+        List<EmployeeResponse> employees =
+                employeeService.getAllEmployees();
+
+        return ResponseEntity.ok(employees);
     }
 
-    // GET BY ID
+    /**
+     * Get employee by ID.
+     *
+     * GET /api/v1/employees/{id}
+     */
     @GetMapping("/{id}")
-    public ResponseEntity<Employee> getEmployeeById(
-            @PathVariable Long id) {
+    public ResponseEntity<EmployeeResponse> getEmployeeById(
+            @PathVariable
+            @Positive(message = "Employee ID must be positive")
+            Long id) {
 
-        return employeeService.getEmployeeById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        EmployeeResponse employee =
+                employeeService.getEmployeeById(id);
+
+        return ResponseEntity.ok(employee);
     }
 
-    // UPDATE
+    /**
+     * Update an existing employee.
+     *
+     * PUT /api/v1/employees/{id}
+     */
     @PutMapping("/{id}")
-    public Employee updateEmployee(
-            @PathVariable Long id,
-            @RequestBody Employee employee) {
+    public ResponseEntity<EmployeeResponse> updateEmployee(
+            @PathVariable
+            @Positive(message = "Employee ID must be positive")
+            Long id,
+            @Valid @RequestBody EmployeeRequest request) {
 
-        return employeeService.updateEmployee(id, employee);
+        EmployeeResponse response =
+                employeeService.updateEmployee(id, request);
+
+        return ResponseEntity.ok(response);
     }
 
-    // DELETE
+    /**
+     * Delete an employee.
+     *
+     * DELETE /api/v1/employees/{id}
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEmployee(
-            @PathVariable Long id) {
+            @PathVariable
+            @Positive(message = "Employee ID must be positive")
+            Long id) {
 
         employeeService.deleteEmployee(id);
 

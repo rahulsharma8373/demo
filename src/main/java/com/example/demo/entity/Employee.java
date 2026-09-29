@@ -1,30 +1,44 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 
 @Entity
+@Table(
+        name = "employees",
+        indexes = {
+                @Index(name = "idx_employee_email", columnList = "email"),
+                @Index(name = "idx_employee_department", columnList = "department")
+        }
+)
 public class Employee {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 100)
     private String name;
 
+    @Column(nullable = false, unique = true, length = 150)
     private String email;
 
+    @Column(nullable = false, length = 100)
     private String department;
 
-    private Double salary;
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal salary;
 
     public Employee() {
     }
 
-    public Employee(Long id, String name, String email,
-                    String department, Double salary) {
+    public Employee(
+            Long id,
+            String name,
+            String email,
+            String department,
+            BigDecimal salary) {
 
         this.id = id;
         this.name = name;
@@ -65,11 +79,12 @@ public class Employee {
         this.department = department;
     }
 
-    public Double getSalary() {
+    public BigDecimal getSalary() {
         return salary;
     }
 
-    public void setSalary(Double salary) {
+    public void setSalary(BigDecimal salary) {
         this.salary = salary;
     }
 }
+
